@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="5dp"
-    tools:context=".MainActivity">
+    android:id="@+id/collage_container"
+    tools:context=".MainActivity"
+    >
 
     <ImageButton
         android:id="@+id/imageButton1"
@@ -61,15 +63,3 @@
         app:srcCompat="@android:drawable/ic_menu_camera" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!--    <ImageButton-->
-<!--        android:id="@+id/imageButton1"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="0dp"-->
-<!--        android:background="@android:color/holo_orange_dark"-->
-<!--        android:tint="@android:color/black"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent"-->
-<!--        app:srcCompat="@android:drawable/ic_menu_camera" />-->

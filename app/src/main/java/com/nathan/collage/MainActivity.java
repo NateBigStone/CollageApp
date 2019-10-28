@@ -8,11 +8,14 @@ import androidx.core.content.FileProvider;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -21,11 +24,13 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -90,8 +95,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     }
+    // trying code from https://stackoverflow.com/questions/38158953/how-to-create-button-in-action-bar-in-android
 
+    // create an action bar button
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // R.menu.mymenu is a reference to an xml file named mymenu.xml which should be inside your res/menu directory.
+        // If you don't have res/menu, just create a directory named "menu" inside res
+        getMenuInflater().inflate(R.menu.mymenu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
+    // handle button activities
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.screenshot) {
+            takeScreenshot();
+            Toast.makeText(this, "Collage Saved!", Toast.LENGTH_LONG).show();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     private File createImageFile() throws IOException {
         //create unigue file nam w time stomp
@@ -185,5 +210,51 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } catch (IOException e) {
             Log.e(TAG, "Image file not found", e);
         }
+    }
+
+    // taken from https://stackoverflow.com/questions/2661536/how-to-programmatically-take-a-screenshot-on-android
+    private void takeScreenshot() {
+        Date now = new Date();
+        android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", now);
+
+        try {
+            // image naming and path  to include sd card  appending name you choose for file
+            File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+
+            String mPath = storageDir.toString() + "/" + now + ".jpg";
+
+            // create bitmap screen capture
+            View v1 = findViewById(R.id.collage_container);
+            //of the entire screen = this.getWindow().getDecorView().getRootView();
+            v1.setDrawingCacheEnabled(true);
+            Bitmap bitmap = Bitmap.createBitmap(v1.getDrawingCache());
+            v1.setDrawingCacheEnabled(false);
+
+            File imageFile = new File(mPath);
+
+            FileOutputStream outputStream = new FileOutputStream(imageFile);
+            int quality = 100;
+            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+            outputStream.flush();
+            outputStream.close();
+
+            Log.d(TAG, "in button: " + imageFile.toString());
+
+            openScreenshot(imageFile);
+        } catch (Throwable e) {
+            // Several error may come out with file handling or DOM
+            e.printStackTrace();
+        }
+    }
+
+    private void openScreenshot(File imageFile) {
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        Log.d(TAG, "in openScreenshot: " + imageFile.toString());
+        Uri data = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileprovider" , imageFile);
+        intent.setDataAndType(data, "image/*");
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        this.startActivity(intent);
     }
 }
